@@ -5,9 +5,66 @@ All notable changes to libre will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## v4.4.0 - 2025-12-22
+
+### What's Changed
+* fmt: add pl_alloc_dup() by @cspiel1 in https://github.com/baresip/re/pull/1469
+* tools: add genfir python script from librem by @alfredh in https://github.com/baresip/re/pull/1471
+* test: av1 obu print by @alfredh in https://github.com/baresip/re/pull/1473
+* genfir: upgrade to python 3 by @alfredh in https://github.com/baresip/re/pull/1472
+* test: add negative conf tests by @alfredh in https://github.com/baresip/re/pull/1474
+* turn: add channel peer mutex locking by @sreimers in https://github.com/baresip/re/pull/1478
+* test: remove h265 fragment handling by @alfredh in https://github.com/baresip/re/pull/1477
+* test: add testing of re_text2pcap_trace() by @alfredh in https://github.com/baresip/re/pull/1476
+* dd: change dd_print() to struct re_printf *pf and add test by @alfredh in https://github.com/baresip/re/pull/1475
+* rtp, stun/msg: doxygen fixes by @sreimers in https://github.com/baresip/re/pull/1479
+* trace: add trace line handler by @sreimers in https://github.com/baresip/re/pull/1460
+* trace: deref id after new trace handler by @sreimers in https://github.com/baresip/re/pull/1481
+* test: add testing of dbg module by @alfredh in https://github.com/baresip/re/pull/1480
+* aumix: implement aumix_source_set_id by @sreimers in https://github.com/baresip/re/pull/1482
+* dns: check memory allocation in get_resolv_dns() by @alfredh in https://github.com/baresip/re/pull/1484
+* test: check errors in turn_thread() test by @alfredh in https://github.com/baresip/re/pull/1485
+* test: remove rotate from mock DNS-server by @alfredh in https://github.com/baresip/re/pull/1487
+* test: check re_main_timeout() return value in test_rtp_listen_priv() by @alfredh in https://github.com/baresip/re/pull/1488
+* h265,test: improve testing and usage of h265_nal_print() by @alfredh in https://github.com/baresip/re/pull/1486
+* test: more testing of IPv6 protocol by @alfredh in https://github.com/baresip/re/pull/1490
+* stun: remove PADDING attribute by @alfredh in https://github.com/baresip/re/pull/1491
+* stun: remove natbd strings (deprecated) by @alfredh in https://github.com/baresip/re/pull/1489
+
+**Full Changelog**: https://github.com/baresip/re/compare/v4.3.0...v4.4.0
+
+
+## v4.3.0 - 2025-11-19
+
+### What's Changed
+* cmake: remove macOS include path by @mohd-akram in https://github.com/baresip/re/pull/1449
+* test: sort testcases in alphabetical order by @alfredh in https://github.com/baresip/re/pull/1447
+* test: increase coverage of websock test with protocol on/off by @alfredh in https://github.com/baresip/re/pull/1446
+* sdp/media: fix sdp_media_align_formats pt handling by @sreimers in https://github.com/baresip/re/pull/1450
+* dns: fix AAAA address comparison in getaddr_dup() by @alfredh in https://github.com/baresip/re/pull/1452
+* test: add support for IPv6 DNS testing by @alfredh in https://github.com/baresip/re/pull/1454
+* ci: add clang-21 by @sreimers in https://github.com/baresip/re/pull/1453
+* sys/fs: improve fs_fread error handling by @sreimers in https://github.com/baresip/re/pull/1455
+* test: compare DNS RR records data in order to increase test-coverage by @alfredh in https://github.com/baresip/re/pull/1458
+* dns: correct comment in dnsc_query_srv() by @alfredh in https://github.com/baresip/re/pull/1457
+* h265: Fix NAL Decode nuh_layer_id by @xiaokuang95 in https://github.com/baresip/re/pull/1456
+* auframe: avoid auframe_bytes_to_ms division by zero by @sreimers in https://github.com/baresip/re/pull/1459
+* aumix: add aumix_latency and new defaults by @sreimers in https://github.com/baresip/re/pull/1461
+* dns: remove get_android_dns() by @alfredh in https://github.com/baresip/re/pull/1464
+* test: add testing of DNS nameservers by @alfredh in https://github.com/baresip/re/pull/1462
+* cmake/re-config: fix HAVE_THREADS discovery by @sreimers in https://github.com/baresip/re/pull/1466
+
+### New Contributors
+* @mohd-akram made their first contribution in https://github.com/baresip/re/pull/1449
+* @xiaokuang95 made their first contribution in https://github.com/baresip/re/pull/1456
+
+**Full Changelog**: https://github.com/baresip/re/compare/v4.2.0...v4.3.0
+
+
 ## v4.2.0 - 2025-10-15
 
-## What's Changed
+### What's Changed
 * test: add testcode for btrace module by @alfredh in https://github.com/baresip/re/pull/1414
 * types: add ETIME fallback by @sreimers in https://github.com/baresip/re/pull/1420
 * test: add testing of conf_get_bool() by @alfredh in https://github.com/baresip/re/pull/1419
@@ -30,7 +87,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * ci/android: remove AVD cache by @sreimers in https://github.com/baresip/re/pull/1442
 * ci/android: revert to android api level 26 by @sreimers in https://github.com/baresip/re/pull/1443
 * bump version number to 4.2.0 by @alfredh in https://github.com/baresip/re/pull/1440
-
 
 **Full Changelog**: https://github.com/baresip/re/compare/v4.1.0...v4.2.0
 
@@ -58,7 +114,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * tls: tls_set_resumption() -- change const enum to enum by @alfredh in https://github.com/baresip/re/pull/1412
 * ci/abi: bump old abi by @sreimers in https://github.com/baresip/re/pull/1417
 * ci/coverage: bump min coverage by @sreimers in https://github.com/baresip/re/pull/1416
-
 
 **Full Changelog**: https://github.com/baresip/re/compare/v4.0.0...v4.1.0
 
@@ -92,8 +147,8 @@ The breaking changes are discussed here: https://github.com/baresip/re/discussio
 * tls: remove tls_set_selfsigned_rsa() -- use Elliptic Curve instead by @alfredh in https://github.com/baresip/re/pull/1388
 * test: enable dtls_set_single() for DTLS client test by @alfredh in https://github.com/baresip/re/pull/1387
 
-
 **Full Changelog**: https://github.com/baresip/re/compare/v3.24.0...v4.0.0
+
 
 ## v3.24.0 - 2025-07-09
 
@@ -117,7 +172,6 @@ The breaking changes are discussed here: https://github.com/baresip/re/discussio
 * test: add support check for SRTP GCM test cases by @alfredh in https://github.com/baresip/re/pull/1361
 * trice: add more doxygen comments by @alfredh in https://github.com/baresip/re/pull/1362
 * prepare for release -- bump version to 3.24.0 by @alfredh in https://github.com/baresip/re/pull/1365
-
 
 **Full Changelog**: https://github.com/baresip/re/compare/v3.23.0...v3.24.0
 

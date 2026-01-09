@@ -149,6 +149,27 @@ int test_fmt_pl(void)
 }
 
 
+int test_fmt_pl_alloc_dup(void)
+{
+	int err		= 0;
+	const struct pl pl0 = PL("rAtTaReI");
+
+	struct pl *pl = pl_alloc_dup(&pl0);
+	if (!pl)
+		return ENOMEM;
+
+	TEST_EQUALS(pl0.l, pl->l);
+	TEST_MEMCMP(pl0.p, pl0.l, pl->p, pl->l);
+	err = pl_cmp(&pl0, pl);
+	TEST_ERR(err);
+
+out:
+	mem_deref(pl);
+
+	return err;
+}
+
+
 int test_fmt_pl_alloc_str(void)
 {
 	int err		= 0;
@@ -1208,6 +1229,9 @@ int test_text2pcap(void)
 	int ret = re_snprintf(test, sizeof(test), "%H", re_text2pcap, &pcap);
 
 	TEST_EQUALS(35, ret);
+
+	mbuf_set_pos(mb, 0);
+	re_text2pcap_trace("retest", "RETEST", true, mb);
 
 out:
 	mem_deref(mb);

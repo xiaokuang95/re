@@ -5,7 +5,7 @@ libre README
 libre is a Generic library for real-time communications with async IO support.
 
 - Copyright (C) 2010 - 2020 Creytiv.com
-- Copyright (C) 2020 - 2025 Baresip Foundation (https://github.com/baresip)
+- Copyright (C) 2020 - 2026 Baresip Foundation (https://github.com/baresip)
 
 ![Build](https://github.com/baresip/re/workflows/Build/badge.svg)
 ![ccheck](https://github.com/baresip/re/workflows/ccheck/badge.svg)
@@ -209,7 +209,6 @@ legend:
 * [RFC 5766](https://tools.ietf.org/html/rfc5766) - Traversal Using Relays around NAT (TURN)
 * [RFC 5768](https://tools.ietf.org/html/rfc5768) - Indicating Support for ICE in SIP
 * [RFC 5769](https://tools.ietf.org/html/rfc5769) - Test vectors for STUN
-* [RFC 5780](https://tools.ietf.org/html/rfc5780) - NAT Behaviour Discovery Using STUN
 * [RFC 6026](https://tools.ietf.org/html/rfc6026) - Correct Transaction Handling for 2xx Resp. to SIP INVITE Requests
 * [RFC 6156](https://tools.ietf.org/html/rfc6156) - TURN Extension for IPv6
 * [RFC 6188](https://tools.ietf.org/html/rfc6188) - The Use of AES-192 and AES-256 in Secure RTP

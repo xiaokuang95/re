@@ -174,10 +174,12 @@ int test_bfcp_tcp(void);
 int test_btrace(void);
 int test_conf(void);
 int test_crc32(void);
+int test_dbg(void);
 int test_dns_hdr(void);
 int test_dns_integration(void);
 int test_dns_rr(void);
 int test_dns_dname(void);
+int test_dns_nameservers(void);
 int test_dsp(void);
 int test_dtmf(void);
 int test_fir(void);
@@ -186,6 +188,7 @@ int test_fmt_hexdump(void);
 int test_fmt_human_time(void);
 int test_fmt_param(void);
 int test_fmt_pl(void);
+int test_fmt_pl_alloc_dup(void);
 int test_fmt_pl_alloc_str(void);
 int test_fmt_pl_float(void);
 int test_fmt_pl_i32(void);
@@ -442,7 +445,7 @@ struct stunserver {
 	int err;
 };
 
-int stunserver_alloc(struct stunserver **stunp);
+int stunserver_alloc(struct stunserver **stunp, const char *laddr);
 const struct sa *stunserver_addr(const struct stunserver *stun, int proto);
 
 
@@ -531,10 +534,9 @@ struct dns_server {
 	struct udp_sock *us;
 	struct sa addr;
 	struct list rrl;
-	bool rotate;
 };
 
-int dns_server_alloc(struct dns_server **srvp, bool rotate);
+int dns_server_alloc(struct dns_server **srvp, const char *laddr);
 int dns_server_add_a(struct dns_server *srv, const char *name, uint32_t addr,
 		     int64_t ttl);
 int dns_server_add_aaaa(struct dns_server *srv, const char *name,

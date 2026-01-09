@@ -53,6 +53,7 @@ enum h265_naltype {
 
 struct h265_nal {
 	unsigned nal_unit_type:6;          /* NAL unit type (0-40)       */
+	unsigned nuh_layer_id:6;           /* layer identifier           */
 	unsigned nuh_temporal_id_plus1:3;  /* temporal identifier plus 1 */
 };
 
@@ -60,7 +61,7 @@ void h265_nal_encode(uint8_t buf[2], unsigned nal_unit_type,
 		     unsigned nuh_temporal_id_plus1);
 int  h265_nal_encode_mbuf(struct mbuf *mb, const struct h265_nal *nal);
 int  h265_nal_decode(struct h265_nal *nal, const uint8_t *p);
-void h265_nal_print(const struct h265_nal *nal);
+int  h265_nal_print(struct re_printf *pf, const struct h265_nal *nal);
 const char *h265_nalunit_name(enum h265_naltype type);
 bool h265_is_keyframe(enum h265_naltype type);
 

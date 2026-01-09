@@ -35,6 +35,17 @@ int test_h265(void)
 	ASSERT_TRUE(!h265_is_keyframe(H265_NAL_VPS_NUT));
 	ASSERT_TRUE( h265_is_keyframe(H265_NAL_IDR_W_RADL));
 
+	for (unsigned i=0; i<=49; i++) {
+
+		char debug[256] = "";
+		struct h265_nal nal = {
+			.nal_unit_type = i
+		};
+
+		re_snprintf(debug, sizeof(debug), "%H", h265_nal_print, &nal);
+		ASSERT_TRUE(str_isset(debug));
+	}
+
  out:
 	return err;
 }
@@ -72,8 +83,6 @@ struct state {
 
 	/* depacketizer */
 	struct mbuf *mb;
-	size_t frag_start;
-	bool frag;
 
 	/* test */
 	uint8_t buf[256];
@@ -81,13 +90,6 @@ struct state {
 	unsigned count;
 	bool complete;
 };
-
-
-static void fragment_rewind(struct state *vds)
-{
-	vds->mb->pos = vds->frag_start;
-	vds->mb->end = vds->frag_start;
-}
 
 
 static int depack_handle_h265(struct state *st, bool marker,
@@ -114,12 +116,6 @@ static int depack_handle_h265(struct state *st, bool marker,
 	      h265_nalunit_name(hdr.nal_unit_type));
 #endif
 
-	if (st->frag && hdr.nal_unit_type != H265_NAL_FU) {
-		re_printf("h265: lost fragments; discarding previous NAL\n");
-		fragment_rewind(st);
-		st->frag = false;
-	}
-
 	/* handle NAL types */
 	if (hdr.nal_unit_type <= 40) {
 
@@ -139,15 +135,6 @@ static int depack_handle_h265(struct state *st, bool marker,
 			return err;
 
 		if (fu.s) {
-			if (st->frag) {
-				DEBUG_WARNING("h265: lost fragments;"
-					      " ignoring NAL\n");
-				fragment_rewind(st);
-			}
-
-			st->frag_start = st->mb->pos;
-			st->frag = true;
-
 			hdr.nal_unit_type = fu.type;
 
 			err  = mbuf_write_mem(st->mb, nal_seq, 3);
@@ -155,19 +142,10 @@ static int depack_handle_h265(struct state *st, bool marker,
 			if (err)
 				goto out;
 		}
-		else {
-			if (!st->frag) {
-				re_printf("h265: ignoring fragment\n");
-				return 0;
-			}
-		}
 
 		err = mbuf_write_mem(st->mb, mbuf_buf(mb), mbuf_get_left(mb));
 		if (err)
 			goto out;
-
-		if (fu.e)
-			st->frag = false;
 	}
 	else if (hdr.nal_unit_type == H265_NAL_AP) {
 
@@ -203,7 +181,6 @@ static int depack_handle_h265(struct state *st, bool marker,
 
  out:
 	mbuf_rewind(st->mb);
-	st->frag = false;
 
 	return err;
 }

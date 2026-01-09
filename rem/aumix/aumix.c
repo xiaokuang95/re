@@ -30,6 +30,10 @@ struct aumix {
 	uint32_t frame_size;
 	uint32_t srate;
 	uint8_t ch;
+	struct {
+		uint16_t min;
+		uint16_t max;
+	} latency;
 	aumix_record_h *recordh;
 	aumix_record_h *record_sumh;
 	struct auframe rec_sum;
@@ -39,6 +43,7 @@ struct aumix {
 /** Defines an Audio mixer source */
 struct aumix_source {
 	struct le le;
+	struct pl *id;
 	struct auframe af;
 	int16_t *frame;
 	struct aubuf *aubuf;
@@ -94,6 +99,7 @@ static void source_destructor(void *arg)
 	mem_deref(src->aubuf);
 	mem_deref(src->frame);
 	mem_deref(src->mix);
+	mem_deref(src->id);
 }
 
 
@@ -278,11 +284,13 @@ int aumix_alloc(struct aumix **mixp, uint32_t srate,
 	if (!mix)
 		return ENOMEM;
 
-	mix->ptime      = ptime;
-	mix->frame_size = srate * ch * ptime / 1000;
-	mix->srate      = srate;
-	mix->ch         = ch;
-	mix->recordh    = NULL;
+	mix->ptime	 = ptime;
+	mix->frame_size	 = srate * ch * ptime / 1000;
+	mix->srate	 = srate;
+	mix->ch		 = ch;
+	mix->recordh	 = NULL;
+	mix->latency.min = 60;	/* ms */
+	mix->latency.max = 200; /* ms */
 
 	mix->rec_sum.ch	  = ch;
 	mix->rec_sum.srate = srate;
@@ -314,6 +322,25 @@ int aumix_alloc(struct aumix **mixp, uint32_t srate,
 		*mixp = mix;
 
 	return err;
+}
+
+
+/**
+ * Set aumix aubuf default latency
+ *
+ * @param mix  Audio mixer
+ * @param min  Minimum value in [ms]
+ * @param max  Maximum value in [ms]
+ */
+void aumix_latency(struct aumix *mix, uint16_t min, uint16_t max)
+{
+	if (!mix)
+		return;
+
+	mtx_lock(mix->mutex);
+	mix->latency.min = min;
+	mix->latency.max = max;
+	mtx_unlock(mix->mutex);
 }
 
 
@@ -447,7 +474,9 @@ int aumix_source_alloc(struct aumix_source **srcp, struct aumix *mix,
 	auframe_init(&src->af, AUFMT_S16LE, src->frame, mix->frame_size,
 		     mix->srate, mix->ch);
 
-	err = aubuf_alloc(&src->aubuf, sz * 6, sz * 12);
+	err = aubuf_alloc(&src->aubuf,
+			  auframe_ms_to_bytes(&src->af, mix->latency.min),
+			  auframe_ms_to_bytes(&src->af, mix->latency.max));
 	if (err)
 		goto out;
 
@@ -458,6 +487,24 @@ int aumix_source_alloc(struct aumix_source **srcp, struct aumix *mix,
 		*srcp = src;
 
 	return err;
+}
+
+
+/**
+ * Set source id
+ *
+ * @param src  Audio mixer source
+ * @param id   Source identifier
+ */
+void aumix_source_set_id(struct aumix_source *src, struct pl *id)
+{
+	if (!src || !id)
+		return;
+
+	mtx_lock(src->mix->mutex);
+	src->id = mem_ref(id);
+	aubuf_set_id(src->aubuf, id);
+	mtx_unlock(src->mix->mutex);
 }
 
 
