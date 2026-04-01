@@ -18,7 +18,7 @@
 #include "dns.h"
 
 
-int get_resolv_dns(char *domain, size_t dsize, struct sa *nsv, uint32_t *n)
+int get_resolv_dns(struct sa *nsv, uint32_t *n)
 {
 	struct __res_state state;
 	uint32_t i;
@@ -34,11 +34,6 @@ int get_resolv_dns(char *domain, size_t dsize, struct sa *nsv, uint32_t *n)
 	if (0 != ret)
 		return ENOENT;
 
-	if (state.dnsrch[0])
-		str_ncpy(domain, state.dnsrch[0], dsize);
-	else if (str_isset(state.defdname))
-		str_ncpy(domain, state.defdname, dsize);
-
 	if (!state.nscount) {
 		err = ENOENT;
 		goto out;
@@ -48,6 +43,10 @@ int get_resolv_dns(char *domain, size_t dsize, struct sa *nsv, uint32_t *n)
 #ifdef DARWIN
 	int memsize = state.nscount * sizeof(union res_sockaddr_union);
 	union res_sockaddr_union *addr = mem_alloc(memsize, NULL);
+	if (!addr) {
+		err = ENOMEM;
+		goto out;
+	}
 	int servers = res_getservers(&state, addr,  state.nscount);
 
 	for (i = 0; i < min(*n, (uint32_t)servers) && !err; i++) {

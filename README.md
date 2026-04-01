@@ -5,7 +5,7 @@ libre README
 libre is a Generic library for real-time communications with async IO support.
 
 - Copyright (C) 2010 - 2020 Creytiv.com
-- Copyright (C) 2020 - 2025 Baresip Foundation (https://github.com/baresip)
+- Copyright (C) 2020 - 2026 Baresip Foundation (https://github.com/baresip)
 
 ![Build](https://github.com/baresip/re/workflows/Build/badge.svg)
 ![ccheck](https://github.com/baresip/re/workflows/ccheck/badge.svg)
@@ -111,13 +111,18 @@ Patches can sent via Github
 |----------|----------|------------------------------------------------|
 | aes      | stable   | AES (Advanced Encryption Standard)             |
 | async    | testing  | Async module                                   |
+| av1      | testing  | AV1 Packetizer                                 |
 | base64   | stable   | Base-64 encoding/decoding functions            |
 | bfcp     | stable   | The Binary Floor Control Protocol (BFCP)       |
+| btrace   | testing  | Backtrace module                               |
 | conf     | stable   | Configuration file parser                      |
 | crc32    | stable   | 32-bit CRC defined in ITU V.42                 |
 | dbg      | stable   | Debug printing                                 |
+| dd       | testing  | Dependency Descriptor                          |
 | dns      | stable   | DNS resolving (NAPTR, SRV, A)                  |
 | fmt      | stable   | Formatted printing and regular expression      |
+| h264     | testing  | H.264 packetizer                               |
+| h265     | testing  | H.265 packetizer                               |
 | hash     | stable   | Hashmap table                                  |
 | hmac     | stable   | HMAC: Keyed-Hashing for Message Authentication |
 | http     | stable   | HTTP parser (RFC 2616)                         |
@@ -134,8 +139,10 @@ Patches can sent via Github
 | msg      | stable   | Generic message component library              |
 | net      | stable   | Networking routines                            |
 | odict    | stable   | Ordered Dictionary                             |
+| pcp      | testing  | Port Control Protocol                          |
 | rtmp     | stable   | Real Time Messaging Protocol                   |
 | rtp      | stable   | Real-time Transport Protocol                   |
+| rtpext   | testing  | RTP extensions                                 |
 | sa       | stable   | Socket Address functions                       |
 | sdp      | stable   | Session Description Protocol                   |
 | sha      | stable   | Secure Hash Standard, NIST, FIPS PUB 180-1     |
@@ -153,6 +160,7 @@ Patches can sent via Github
 | tmr      | stable   | Timer handling                                 |
 | turn     | stable   | Obtaining Relay Addresses from STUN (TURN)     |
 | trace    | testing  | Trace Helpers JSON traces (chrome://tracing)   |
+| trice    | testing  | Trickle ICE                                    |
 | udp      | stable   | UDP transport                                  |
 | unixsock | testing  | Unix domain sockets                            |
 | uri      | stable   | Generic URI library                            |
@@ -209,7 +217,6 @@ legend:
 * [RFC 5766](https://tools.ietf.org/html/rfc5766) - Traversal Using Relays around NAT (TURN)
 * [RFC 5768](https://tools.ietf.org/html/rfc5768) - Indicating Support for ICE in SIP
 * [RFC 5769](https://tools.ietf.org/html/rfc5769) - Test vectors for STUN
-* [RFC 5780](https://tools.ietf.org/html/rfc5780) - NAT Behaviour Discovery Using STUN
 * [RFC 6026](https://tools.ietf.org/html/rfc6026) - Correct Transaction Handling for 2xx Resp. to SIP INVITE Requests
 * [RFC 6156](https://tools.ietf.org/html/rfc6156) - TURN Extension for IPv6
 * [RFC 6188](https://tools.ietf.org/html/rfc6188) - The Use of AES-192 and AES-256 in Secure RTP

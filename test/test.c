@@ -68,10 +68,14 @@ static const struct test tests[] = {
 	TEST(test_btrace),
 	TEST(test_conf),
 	TEST(test_crc32),
+	TEST(test_dbg),
 	TEST(test_dd),
 	TEST(test_dns_dname),
 	TEST(test_dns_hdr),
+	TEST(test_dns_proto),
+	TEST(test_dns_reg),
 	TEST(test_dns_rr),
+	TEST(test_dns_rr_dup),
 	TEST(test_dsp),
 #ifdef USE_TLS
 	TEST(test_dtls),
@@ -187,9 +191,10 @@ static const struct test tests[] = {
 	TEST(test_sdp_interop),
 	TEST(test_sha1),
 	TEST(test_sip_addr),
+	TEST(test_sip_apply),
 	TEST(test_sip_auth),
 	TEST(test_sip_drequestf),
-	TEST(test_sip_apply),
+	TEST(test_sip_dns),
 	TEST(test_sip_hdr),
 	TEST(test_sip_param),
 	TEST(test_sip_parse),
@@ -416,7 +421,8 @@ static int test_exec(const struct test *test)
 	mem_get_stat(&mstat_after);
 
 	if (mstat_after.blocks_cur > mstat_before.blocks_cur) {
-		mem_debug();
+		mem_debug_tail((uint32_t)(mstat_after.blocks_cur -
+					  mstat_before.blocks_cur));
 		re_assert(false && "Test leaks memory blocks");
 	}
 

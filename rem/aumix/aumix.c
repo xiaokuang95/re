@@ -43,6 +43,7 @@ struct aumix {
 /** Defines an Audio mixer source */
 struct aumix_source {
 	struct le le;
+	struct pl *id;
 	struct auframe af;
 	int16_t *frame;
 	struct aubuf *aubuf;
@@ -98,6 +99,7 @@ static void source_destructor(void *arg)
 	mem_deref(src->aubuf);
 	mem_deref(src->frame);
 	mem_deref(src->mix);
+	mem_deref(src->id);
 }
 
 
@@ -489,6 +491,24 @@ int aumix_source_alloc(struct aumix_source **srcp, struct aumix *mix,
 
 
 /**
+ * Set source id
+ *
+ * @param src  Audio mixer source
+ * @param id   Source identifier
+ */
+void aumix_source_set_id(struct aumix_source *src, struct pl *id)
+{
+	if (!src || !id)
+		return;
+
+	mtx_lock(src->mix->mutex);
+	src->id = mem_ref(id);
+	aubuf_set_id(src->aubuf, id);
+	mtx_unlock(src->mix->mutex);
+}
+
+
+/**
  * Add source read handler (alternative to aumix_source_put)
  *
  * @param src    Audio mixer source
@@ -558,6 +578,8 @@ void aumix_source_enable(struct aumix_source *src, bool enable)
 /**
  * Write PCM samples for a given source to the audio mixer
  *
+ * @deprecated use aumix_source_readh or aumix_source_put_auframe
+ *
  * @param src   Audio mixer source
  * @param sampv PCM samples
  * @param sampc Number of samples
@@ -571,6 +593,23 @@ int aumix_source_put(struct aumix_source *src, const int16_t *sampv,
 		return EINVAL;
 
 	return aubuf_write_samp(src->aubuf, sampv, sampc);
+}
+
+
+/**
+ * Put a audio frame for a given source to the audio mixer
+ *
+ * @param src Audio mixer source
+ * @param af  Audio frame
+ *
+ * @return 0 for success, otherwise error code
+ */
+int aumix_source_put_auframe(struct aumix_source *src, struct auframe *af)
+{
+	if (!src)
+		return EINVAL;
+
+	return aubuf_write_auframe(src->aubuf, af);
 }
 
 

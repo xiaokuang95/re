@@ -417,7 +417,7 @@ static void udp_recv_handler(const struct sa *src, struct mbuf *mb, void *arg)
 }
 
 
-static int test_stun_request(int proto, bool natted)
+static int test_stun_request(int proto, bool natted, const char *laddr_str)
 {
 	struct stunserver *srv = NULL;
 	struct stun_ctrans *ct = NULL;
@@ -428,7 +428,7 @@ static int test_stun_request(int proto, bool natted)
 
 	memset(&test, 0, sizeof(test));
 
-	err = stunserver_alloc(&srv);
+	err = stunserver_alloc(&srv, laddr_str);
 	if (err)
 		goto out;
 
@@ -437,7 +437,7 @@ static int test_stun_request(int proto, bool natted)
 		goto out;
 
 	if (proto == IPPROTO_UDP) {
-		err = sa_set_str(&laddr, "127.0.0.1", 0);
+		err = sa_set_str(&laddr, laddr_str, 0);
 		TEST_ERR(err);
 
 		err = udp_listen(&test.us, &laddr, udp_recv_handler, &test);
@@ -566,6 +566,88 @@ static int test_stun_req_attributes(void)
 }
 
 
+static void stun_dns_handler(int err, const struct sa *srv, void *arg)
+{
+	struct sa *stun_addr = arg;
+
+	if (err) {
+		DEBUG_WARNING("stun_dns_handler error: %m\n", err);
+		re_cancel();
+		return;
+	}
+
+	DEBUG_INFO("stun dns:  server = %J\n", srv);
+
+	*stun_addr = *srv;
+	re_cancel();
+}
+
+
+static const char *get_loopback(int af)
+{
+	switch (af) {
+
+	case AF_INET:  return "127.0.0.1";
+	case AF_INET6: return "::1";
+	default:       return NULL;
+	}
+}
+
+
+static int test_stun_discover(int af)
+{
+	struct dns_server *srv = NULL;
+	struct dnsc *dnsc = NULL;
+	struct stun_dns *stun_dns = NULL;
+	struct sa stun_addr, exp_addr;
+	const char *tld = "example.com";
+	const char *target = "stun.example.com";
+	const char *laddr = get_loopback(af);
+	int err;
+
+	sa_set_str(&exp_addr, laddr, STUN_PORT);
+
+	err = dns_server_alloc(&srv, laddr);
+	TEST_ERR(err);
+
+	char srv_name[256] = "";
+	re_snprintf(srv_name, sizeof(srv_name), "_stun._udp.%s", tld);
+
+	err = dns_server_add_srv(srv, srv_name, 0, 0, STUN_PORT, target, 3600);
+	TEST_ERR(err);
+
+	err = dns_server_add_srv(srv, srv_name, 0, 0, STUN_PORT, target, 3600);
+	TEST_ERR(err);
+
+	err = dns_server_add_a(srv, target, 0x7f000001, 3600);
+	TEST_ERR(err);
+
+	const uint8_t ipv6_lo[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+	err = dns_server_add_aaaa(srv, target, ipv6_lo, 3600);
+	TEST_ERR(err);
+
+	err = dnsc_alloc(&dnsc, NULL, &srv->addr, 1);
+	TEST_ERR(err);
+
+	err = stun_server_discover(&stun_dns, dnsc, stun_usage_binding,
+				   stun_proto_udp, af, tld, 0,
+				   stun_dns_handler, &stun_addr);
+	TEST_ERR(err);
+
+	err = re_main_timeout(10000);
+	TEST_ERR(err);
+
+	TEST_SACMP(&exp_addr, &stun_addr, SA_ALL);
+
+ out:
+	mem_deref(stun_dns);
+	mem_deref(dnsc);
+	mem_deref(srv);
+
+	return err;
+}
+
+
 /*
  * Send a STUN Binding Request to the mock STUN-Server,
  * and expect a STUN Binding Response.
@@ -574,17 +656,30 @@ int test_stun(void)
 {
 	int err;
 
-	err = test_stun_request(IPPROTO_UDP, false);
+	err = test_stun_request(IPPROTO_UDP, false, "127.0.0.1");
 	TEST_ERR(err);
 
-	err = test_stun_request(IPPROTO_UDP, NATTED);
+	err = test_stun_request(IPPROTO_UDP, NATTED, "127.0.0.1");
 	TEST_ERR(err);
 
-	err = test_stun_request(IPPROTO_TCP, false);
+	err = test_stun_request(IPPROTO_TCP, false, "127.0.0.1");
 	TEST_ERR(err);
 
 	err = test_stun_req_attributes();
 	TEST_ERR(err);
+
+	if (test_ipv6_supported()) {
+		err = test_stun_request(IPPROTO_UDP, false, "::1");
+		TEST_ERR(err);
+	}
+
+	err = test_stun_discover(AF_INET);
+	TEST_ERR(err);
+
+	if (test_ipv6_supported()) {
+		err = test_stun_discover(AF_INET6);
+		TEST_ERR(err);
+	}
 
 out:
 	return err;

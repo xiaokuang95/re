@@ -27,11 +27,12 @@ int aumix_playfile(struct aumix *mix, const char *filepath);
 uint32_t aumix_source_count(const struct aumix *mix);
 int aumix_source_alloc(struct aumix_source **srcp, struct aumix *mix,
 		       aumix_frame_h *fh, void *arg);
-void aumix_source_set_id(struct aumix_source *src, uint16_t id);
+void aumix_source_set_id(struct aumix_source *src, struct pl *id);
 void aumix_source_enable(struct aumix_source *src, bool enable);
 void aumix_source_mute(struct aumix_source *src, bool mute);
 int  aumix_source_put(struct aumix_source *src, const int16_t *sampv,
 		      size_t sampc);
+int  aumix_source_put_auframe(struct aumix_source *src, struct auframe *af);
 void aumix_source_readh(struct aumix_source *src, aumix_read_h *readh);
 void aumix_source_flush(struct aumix_source *src);
 int aumix_debug(struct re_printf *pf, const struct aumix *mix);

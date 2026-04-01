@@ -174,11 +174,15 @@ int test_bfcp_tcp(void);
 int test_btrace(void);
 int test_conf(void);
 int test_crc32(void);
+int test_dbg(void);
+int test_dns_dname(void);
 int test_dns_hdr(void);
 int test_dns_integration(void);
-int test_dns_rr(void);
-int test_dns_dname(void);
 int test_dns_nameservers(void);
+int test_dns_proto(void);
+int test_dns_reg(void);
+int test_dns_rr(void);
+int test_dns_rr_dup(void);
 int test_dsp(void);
 int test_dtmf(void);
 int test_fir(void);
@@ -307,6 +311,7 @@ int test_sip_msg(void);
 int test_sip_param(void);
 int test_sip_parse(void);
 int test_sip_via(void);
+int test_sip_dns(void);
 #ifdef USE_TLS
 int test_sip_transp_add_client_cert(void);
 #endif
@@ -444,7 +449,7 @@ struct stunserver {
 	int err;
 };
 
-int stunserver_alloc(struct stunserver **stunp);
+int stunserver_alloc(struct stunserver **stunp, const char *laddr);
 const struct sa *stunserver_addr(const struct stunserver *stun, int proto);
 
 
@@ -462,6 +467,7 @@ struct turnserver {
 	char addr[64];
 	const char *auth_realm;
 	uint64_t auth_secret;
+	uint16_t error_scode;
 
 	struct channel {
 		uint16_t nr;
@@ -481,6 +487,7 @@ struct turnserver {
 };
 
 int turnserver_alloc(struct turnserver **turnp, const char *addr);
+void turnserver_force_error(struct turnserver *turn, uint16_t scode);
 
 
 enum natbox_type {
@@ -517,6 +524,7 @@ struct sip_server {
 	bool terminate;
 
 	unsigned n_register_req;
+	unsigned n_options_req;
 	struct sip_msg *sip_msgs[16];
 };
 
@@ -531,17 +539,23 @@ int sip_server_uri(struct sip_server *srv, char *uri, size_t sz,
 
 struct dns_server {
 	struct udp_sock *us;
+	struct tcp_sock *ts;
 	struct sa addr;
+	struct sa addr_tcp;
 	struct list rrl;
-	bool rotate;
+
+	/* per TCP-connection: */
+	struct tcp_conn *tc;
+	struct mbuf *mb;
+	uint16_t flen;
 };
 
-int dns_server_alloc(struct dns_server **srvp, const char *laddr, bool rotate);
+int dns_server_alloc(struct dns_server **srvp, const char *laddr);
 int dns_server_add_a(struct dns_server *srv, const char *name, uint32_t addr,
 		     int64_t ttl);
 int dns_server_add_aaaa(struct dns_server *srv, const char *name,
-			const uint8_t *addr);
+			const uint8_t *addr, int64_t ttl);
 int dns_server_add_srv(struct dns_server *srv, const char *name,
 		       uint16_t pri, uint16_t weight, uint16_t port,
-		       const char *target);
+		       const char *target, int64_t ttl);
 void dns_server_flush(struct dns_server *srv);

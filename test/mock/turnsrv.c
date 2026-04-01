@@ -121,10 +121,16 @@ static void relay_udp_recv(const struct sa *src, struct mbuf *mb, void *arg)
 
 		mb->pos = start;
 
-		err = udp_send(turn->us, &turn->cli, mb);
+		if (turn->tc)
+			err = tcp_send(turn->tc, mb);
+		else
+			err = udp_send(turn->us, &turn->cli, mb);
 	}
 	else {
-		err = stun_indication(IPPROTO_UDP, turn->us,
+		int proto = turn->tc ? IPPROTO_TCP : IPPROTO_UDP;
+		void *sock = turn->tc ? (void *)turn->tc : (void *)turn->us;
+
+		err = stun_indication(proto, sock,
 				      &turn->cli, 0, STUN_METHOD_DATA,
 				      NULL, 0, false, 2,
 				      STUN_ATTR_XOR_PEER_ADDR, src,
@@ -233,6 +239,20 @@ static bool auth_request(struct turnserver *turn,
 		goto unauth;
 	}
 
+	if (turn->error_scode) {
+
+		err = stun_ereply(proto, sock, src, 0, msg,
+				  turn->error_scode, "Error",
+				  NULL, 0, false, 2,
+				  STUN_ATTR_REALM, turn->auth_realm,
+				  STUN_ATTR_NONCE,
+				    mknonce(turn, nstr, now, src));
+
+		turn->error_scode = 0;
+
+		goto unauth;
+	}
+
 	if (!user || !realm || !nonce) {
 		err = stun_ereply(proto, sock, src, 0, msg,
 				  400, "Bad Request",
@@ -294,6 +314,7 @@ static void process_msg(struct turnserver *turn, int proto, void *sock,
 	struct stun_msg *msg = NULL;
 	struct sa laddr;
 	int err = 0;
+	const uint32_t alloc_lifetime = TURN_DEFAULT_LIFETIME;
 
 	if (stun_msg_decode(&msg, mb, NULL)) {
 
@@ -367,9 +388,10 @@ static void process_msg(struct turnserver *turn, int proto, void *sock,
 
 		err = stun_reply(proto, sock, src, 0,
 				 msg, ctx.key, ctx.keylen, false,
-				 2,
+				 3,
 				 STUN_ATTR_XOR_MAPPED_ADDR, src,
-				 STUN_ATTR_XOR_RELAY_ADDR, &turn->relay);
+				 STUN_ATTR_XOR_RELAY_ADDR, &turn->relay,
+				 STUN_ATTR_LIFETIME, &alloc_lifetime);
 		break;
 
 	case STUN_METHOD_CREATEPERM: {
@@ -654,4 +676,13 @@ int turnserver_alloc(struct turnserver **turnp, const char *addr)
 		*turnp = turn;
 
 	return err;
+}
+
+
+void turnserver_force_error(struct turnserver *turn, uint16_t scode)
+{
+	if (!turn)
+		return;
+
+	turn->error_scode = scode;
 }

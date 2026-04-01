@@ -134,7 +134,8 @@ static void worker_check(void *arg)
 	mtx_lock(&async->mtx);
 	if (!list_isempty(&async->workl)) {
 		if (async->workers == list_count(&async->curl))
-			DEBUG_WARNING("all async workers are busy\n");
+			DEBUG_WARNING("all async workers are busy (%u)\n",
+				      async->workers);
 		else
 			cnd_broadcast(&async->wait);
 	}
@@ -152,11 +153,14 @@ static void queueh(int id, void *data, void *arg)
 	(void)id;
 
 	mtx_lock(work->mtx);
-	if (work->cb) {
-		work->cb(work->err, work->arg);
-		work->cb =NULL;
-	}
+	re_async_h *cb = work->cb;
+	void *cb_arg   = work->arg;
+	int err        = work->err;
+	work->cb = NULL;
 	mtx_unlock(work->mtx);
+
+	if (cb)
+		cb(err, cb_arg);
 
 	mtx_lock(&async->mtx);
 	list_move(&work->le, &async->freel);

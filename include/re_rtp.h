@@ -265,6 +265,8 @@ int   rtp_alloc(struct rtp_sock **rsp);
 int   rtp_listen(struct rtp_sock **rsp, int proto, const struct sa *ip,
 		 uint16_t min_port, uint16_t max_port, bool enable_rtcp,
 		 rtp_recv_h *recvh, rtcp_recv_h *rtcph, void *arg);
+int   rtp_listen_single(struct rtp_sock **rsp, const struct sa *ip,
+			uint16_t port, rtp_recv_h *recvh, void *arg);
 int   rtp_open(struct rtp_sock **rsp, int af);
 int   rtp_hdr_encode(struct mbuf *mb, const struct rtp_header *hdr);
 int   rtp_hdr_decode(struct rtp_header *hdr, struct mbuf *mb);
@@ -399,11 +401,11 @@ int  rtp_source_calc_lost(const struct rtp_source *s);
 uint8_t rtp_source_calc_fraction_lost(struct rtp_source *s);
 
 
-/* RTP Extensions for Transport-wide Congestion Control */
+/** RTP Extensions for Transport-wide Congestion Control */
 enum twcc_packet_state {
-	TWCC_PK_NOT_RECEIVED = 0,
-	TWCC_PK_RECEIVED,   /**< Packet received, small delta                */
-	TWCC_PK_LARGE_DELTA /**< Packet received, large or negative delta    */
+	TWCC_PK_NOT_RECEIVED = 0,/**< Packet not received                   */
+	TWCC_PK_RECEIVED,        /**< Packet received, small delta          */
+	TWCC_PK_LARGE_DELTA      /**< Packet received, large or neg. delta  */
 };
 
 struct rtcp_twcc_packet {

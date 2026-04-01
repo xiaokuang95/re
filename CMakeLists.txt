@@ -14,13 +14,13 @@
 cmake_minimum_required(VERSION 3.18...4.0)
 
 project(re
-  VERSION 4.3.0
+  VERSION 4.6.0
   LANGUAGES C
   HOMEPAGE_URL https://github.com/baresip/re
   DESCRIPTION "Generic library for real-time communications"
 )
 
-set(PROJECT_SOVERSION 39) # bump if ABI breaks
+set(PROJECT_SOVERSION 41) # bump if ABI breaks
 
 # Pre-release identifier, comment out on a release
 # Increment for breaking changes (dev2, dev3...)
@@ -184,6 +184,7 @@ set(HEADERS
   include/re_turn.h
   include/re_types.h
   include/re_udp.h
+  include/re_unixsock.h
   include/re_uri.h
   include/re_websock.h
   include/rem_aac.h
@@ -211,11 +212,6 @@ set(HEADERS
   include/rem_vidmix.h
 )
 
-if(USE_UNIXSOCK)
-  list(APPEND HEADERS
-    include/re_unixsock.h
-  )
-endif()
 
 set(SRCS
 
@@ -407,6 +403,7 @@ set(SRCS
 
   src/udp/mcast.c
   src/udp/udp.c
+  src/unixsock/unixsock.c
 
   src/uri/uri.c
   src/uri/uric.c
@@ -440,11 +437,6 @@ set(REM_SRCS
   rem/vidmix/vidmix.c
 )
 
-if(USE_UNIXSOCK)
-  list(APPEND SRCS
-    src/unixsock/unixsock.c
-  )
-endif()
 
 if(USE_BFCP)
   list(APPEND SRCS
