@@ -228,6 +228,10 @@ int test_http_conn(void);
 int test_http_conn_large_body(void);
 int test_dns_http_integration(void);
 int test_dns_cache_http_integration(void);
+int test_http_request_addr(void);
+#ifdef USE_TLS
+int test_https_request_addr(void);
+#endif
 #ifdef USE_TLS
 int test_https_loop(void);
 int test_http_client_set_tls(void);
@@ -342,9 +346,10 @@ int test_stun_reqltc(void);
 int test_stun(void);
 int test_sys_endian(void);
 int test_sys_rand(void);
+int test_sys_fs_fopen(void);
+int test_sys_fs_gethome(void);
 int test_sys_fs_isdir(void);
 int test_sys_fs_isfile(void);
-int test_sys_fs_fopen(void);
 int test_sys_getenv(void);
 int test_tcp(void);
 int test_tcp_tos(void);
